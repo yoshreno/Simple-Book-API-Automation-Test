@@ -1,0 +1,1294 @@
+{
+	"info": {
+		"_postman_id": "628ae991-32bb-459f-a26f-25b04354afa9",
+		"name": "Simple Book API Automation Test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21509536"
+	},
+	"item": [
+		{
+			"name": "API Status",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"console.log(response.status);\r",
+							"console.log(response['status']);\r",
+							"\r",
+							"pm.test(\"Status should be OK\", () => {\r",
+							"    pm.expect(response.status).to.eql(\"OK\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verify response header\", () => {\r",
+							"  pm.response.to.have.header(\"Content-Type\");\r",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json; charset=utf-8');\r",
+							"  pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive');\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/status",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register API Client",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"if (pm.response.to.have.status(201)) {\r",
+							"    pm.collectionVariables.set(\"accessToken\", response.accessToken);\r",
+							"\r",
+							"    var req = JSON.parse(pm.request.body.raw);\r",
+							"    pm.collectionVariables.set(\"randomName\", req.clientName);\r",
+							"    console.log(req.clientName);\r",
+							"    pm.collectionVariables.set(\"randomEmail\", req.clientEmail);\r",
+							"    console.log(req.clientEmail);\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Verify response header\", () => {\r",
+							"  pm.response.to.have.header(\"Content-Type\");\r",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json; charset=utf-8');\r",
+							"  pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive');\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n   \"clientName\": \"{{$randomFirstName}}\",\r\n   \"clientEmail\": \"{{$randomFirstName}}@example.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api-clients",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api-clients"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Re-register same API client",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 409 Conflict\", function () {\r",
+							"    pm.response.to.have.status(409);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"if (pm.response.to.have.status(409)) {\r",
+							"    pm.test(\"Already registered error is displayed\", () => {\r",
+							"        pm.expect(response.error).to.eql(\"API client already registered. Try a different email.\");\r",
+							"    });\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Verify response header\", () => {\r",
+							"  pm.response.to.have.header(\"Content-Type\");\r",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json; charset=utf-8');\r",
+							"  pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive');\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n   \"clientName\": \"{{randomName}}\",\r\n   \"clientEmail\": \"{{randomEmail}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api-clients",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api-clients"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register API client - Invalid request",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400 Bad Request\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"if (pm.response.to.have.status(400)) {\r",
+							"    pm.test(\"Invalid or missing client email\", () => {\r",
+							"        pm.expect(response.error).to.eql(\"Invalid or missing client email.\");\r",
+							"    });\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Verify response header\", () => {\r",
+							"  pm.response.to.have.header(\"Content-Type\");\r",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json; charset=utf-8');\r",
+							"  pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive');\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n   \"clientName\": \"test\",\r\n   \"clientEmail\": \"test@test.com@test.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api-clients",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api-clients"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List of books",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"const firstBook = response[0];\r",
+							"const lastBook = response[response.length - 1];\r",
+							"\r",
+							"pm.test(\"List of books returned\", () => {\r",
+							"    pm.expect(firstBook).to.be.an('object');\r",
+							"    pm.expect(firstBook.id).to.be.a(\"number\");\r",
+							"    pm.expect(firstBook.name).to.be.a(\"string\");\r",
+							"    pm.expect(firstBook.type).to.be.a(\"string\");\r",
+							"    pm.expect(firstBook.available).to.be.a(\"boolean\");\r",
+							"    \r",
+							"    pm.expect(lastBook).to.be.an('object');\r",
+							"    pm.expect(lastBook.id).to.be.a(\"number\");\r",
+							"    pm.expect(lastBook.name).to.be.a(\"string\");\r",
+							"    pm.expect(lastBook.type).to.be.a(\"string\");\r",
+							"    pm.expect(lastBook.available).to.be.a(\"boolean\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verify response header\", () => {\r",
+							"  pm.response.to.have.header(\"Content-Type\");\r",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json; charset=utf-8');\r",
+							"  pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive');\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/books",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List of books - Limit to 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Only one book should be returned\", () => {\r",
+							"    pm.expect(response).to.be.an(\"array\");\r",
+							"    pm.expect(response.length).to.equal(1);\r",
+							"\r",
+							"    pm.expect(response[0].id).to.be.a(\"number\");\r",
+							"    pm.expect(response[0].name).to.be.a(\"string\");\r",
+							"    pm.expect(response[0].type).to.be.a(\"string\");\r",
+							"    pm.expect(response[0].available).to.be.a(\"boolean\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verify response header\", () => {\r",
+							"  pm.response.to.have.header(\"Content-Type\");\r",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json; charset=utf-8');\r",
+							"  pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive');\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/books?limit=1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List of books - Limit to invalid value",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400 Bad Request\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"if (pm.response.to.have.status(400)) {\r",
+							"    pm.test(\"Invalid value response\", () => {\r",
+							"        pm.expect(response.error).to.eql(\"Invalid value for query parameter 'limit'. Cannot be greater than 20.\");\r",
+							"    });\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Verify response header\", () => {\r",
+							"  pm.response.to.have.header(\"Content-Type\");\r",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json; charset=utf-8');\r",
+							"  pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive');\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/books?limit=21",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "21"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List of books - Non-fiction",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"const nonFictionBooks = response.filter((book) => book.available === true);\r",
+							"\r",
+							"const book = nonFictionBooks[0];\r",
+							"\r",
+							"pm.test(\"Available book found\", () => {\r",
+							"    pm.expect(book).to.be.an('object');\r",
+							"    pm.expect(book.available).to.be.true;\r",
+							"});\r",
+							"\r",
+							"if (book) {\r",
+							"    pm.globals.set(\"bookId\", nonFictionBooks[0].id);\r",
+							"}\r",
+							"\r",
+							"pm.test(\"The book is non-fiction\", () => {\r",
+							"    pm.expect(book.id).to.be.a(\"number\");\r",
+							"    pm.expect(book.name).to.be.a(\"string\");\r",
+							"    pm.expect(book.available).to.be.a(\"boolean\");\r",
+							"    pm.expect(book.type).to.eql(\"non-fiction\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verify response header\", () => {\r",
+							"  pm.response.to.have.header(\"Content-Type\");\r",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json; charset=utf-8');\r",
+							"  pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive');\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/books?type=non-fiction",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "non-fiction"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List of books - Non-fiction invalid value",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"if (pm.response.to.have.status(400)) {\r",
+							"    pm.test(\"Invalid value response\", () => {\r",
+							"        pm.expect(response.error).to.eql(\"Invalid value for query parameter 'type'. Must be one of: fiction, non-fiction.\");\r",
+							"    });\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/books?type=test",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "test"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a book",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"pm.test(\"The correct book is returned\", () => {\r",
+							"    pm.expect(response).to.be.an('object');\r",
+							"    pm.expect(response.id).to.eql(5);\r",
+							"    pm.expect(response.name).to.be.a(\"string\");\r",
+							"    pm.expect(response.author).to.be.a(\"string\");\r",
+							"    pm.expect(response.type).to.be.a(\"string\");\r",
+							"    pm.expect(response.price).to.be.a(\"number\");\r",
+							"    pm.expect(response['current-stock']).to.be.a(\"number\");\r",
+							"    pm.expect(response.available).to.be.a(\"boolean\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"The book is in stock\", function () {\r",
+							"    pm.expect(response['current-stock']).to.be.above(0);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verify response header\", () => {\r",
+							"  pm.response.to.have.header(\"Content-Type\");\r",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json; charset=utf-8');\r",
+							"  pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive');\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/books/:bookId",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books",
+						":bookId"
+					],
+					"variable": [
+						{
+							"key": "bookId",
+							"value": "{{bookId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a book - Invalid value",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404 Not Found\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"if (pm.response.to.have.status(404)) {\r",
+							"    pm.test(\"Invalid value response\", () => {\r",
+							"        pm.expect(response.error).to.eql(\"No book with id 999\");\r",
+							"    });\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/books/:bookId",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"books",
+						":bookId"
+					],
+					"variable": [
+						{
+							"key": "bookId",
+							"value": "999"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Order book",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"pm.test(\"An order is placed\", () => {\r",
+							"    pm.expect(response).to.be.an('object');\r",
+							"    pm.expect(response.created).to.be.a(\"boolean\");\r",
+							"    pm.expect(response.orderId).to.be.a(\"string\");\r",
+							"});\r",
+							"\r",
+							"if (response.created) {\r",
+							"    pm.globals.set(\"orderId\", response.orderId);\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Verify response header\", () => {\r",
+							"  pm.response.to.have.header(\"Content-Type\");\r",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json; charset=utf-8');\r",
+							"  pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive');\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"bookId\": {{bookId}},\r\n  \"customerName\": \"{{$randomFullName}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/orders",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Order book - Invalid book ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 400 Bad Request\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"if (pm.response.to.have.status(400)) {\r",
+							"    pm.test(\"Invalid value response\", () => {\r",
+							"        pm.expect(response.error).to.eql(\"Invalid or missing bookId.\");\r",
+							"    });\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"bookId\": 999,\r\n  \"customerName\": \"{{$randomFullName}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/orders",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Order book - Empty customer name",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"pm.test(\"An order is placed\", () => {\r",
+							"    pm.expect(response).to.be.an('object');\r",
+							"    pm.expect(response.created).to.be.a(\"boolean\");\r",
+							"    pm.expect(response.orderId).to.be.a(\"string\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"bookId\": {{bookId}},\r\n  \"customerName\": \"\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/orders",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"orders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get an order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"pm.test(\"An order is returned\", () => {\r",
+							"    pm.expect(response).to.be.an('object');\r",
+							"    pm.expect(response.id).to.be.a(\"string\");\r",
+							"    pm.expect(response.bookId).to.be.a(\"number\");\r",
+							"    pm.expect(response.customerName).to.be.a(\"string\");\r",
+							"    pm.expect(response.createdBy).to.be.a(\"string\");\r",
+							"    pm.expect(response.quantity).to.be.a(\"number\");\r",
+							"    pm.expect(response.timestamp).to.be.a(\"number\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verify response header\", () => {\r",
+							"  pm.response.to.have.header(\"Content-Type\");\r",
+							"  pm.expect(pm.response.headers.get('Content-Type')).to.eql('application/json; charset=utf-8');\r",
+							"  pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive');\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/orders/:orderId",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"orders",
+						":orderId"
+					],
+					"variable": [
+						{
+							"key": "orderId",
+							"value": "{{orderId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get an order - Invalid order ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404 Not Found\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"if (pm.response.to.have.status(404)) {\r",
+							"    pm.test(\"Invalid value response\", () => {\r",
+							"        pm.expect(response.error).to.eql(\"No order with id test.\");\r",
+							"    });\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/orders/:orderId",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"orders",
+						":orderId"
+					],
+					"variable": [
+						{
+							"key": "orderId",
+							"value": "test"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update an order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Verify response header\", () => {\r",
+							"  pm.expect(pm.response.headers.get('Connection')).to.eql('keep-alive');\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"customerName\": \"Tester\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/orders/:orderId",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"orders",
+						":orderId"
+					],
+					"variable": [
+						{
+							"key": "orderId",
+							"value": "{{orderId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get an order - Verify update order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Customer name has been updated\", () => {\r",
+							"    pm.expect(response.customerName).to.eql(\"Tester\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/orders/:orderId",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"orders",
+						":orderId"
+					],
+					"variable": [
+						{
+							"key": "orderId",
+							"value": "{{orderId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete an order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/orders/:orderId",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"orders",
+						":orderId"
+					],
+					"variable": [
+						{
+							"key": "orderId",
+							"value": "{{orderId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get an order - Verify delete order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404 Not Found\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"if (pm.response.to.have.status(404)) {\r",
+							"    pm.test(\"Cannot get a deleted order\", () => {\r",
+							"        pm.expect(response.error).to.be.a(\"string\");\r",
+							"    });\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/orders/:orderId",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"orders",
+						":orderId"
+					],
+					"variable": [
+						{
+							"key": "orderId",
+							"value": "{{orderId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete an order - Invalid order ID",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404 Not Found\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"const response = pm.response.json();\r",
+							"\r",
+							"if (pm.response.to.have.status(404)) {\r",
+							"    pm.test(\"No such order ID exists\", () => {\r",
+							"        pm.expect(response.error).to.eql(\"No order with id test.\");\r",
+							"    });\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{accessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/orders/:orderId",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"orders",
+						":orderId"
+					],
+					"variable": [
+						{
+							"key": "orderId",
+							"value": "test"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://simple-books-api.glitch.me"
+		},
+		{
+			"key": "accessToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "randomName",
+			"value": ""
+		},
+		{
+			"key": "randomEmail",
+			"value": ""
+		}
+	]
+}
